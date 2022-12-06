@@ -1,0 +1,92 @@
+import 'package:doctorhunt/widgets/search_result.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../widgets/background.dart';
+import '../provider/doctors.dart';
+
+class Search extends StatefulWidget {
+  static const routeName = './search-route';
+  const Search({Key? key}) : super(key: key);
+
+  @override
+  _SearchState createState() => _SearchState();
+}
+
+class _Searchtate extends State<SearchScreen> {
+  String query = '';
+  @override
+  Widget build(BuildContext context) {
+    final mediaHeight = MediaQuery.of(context).size.height;
+    final mediaWidth = MediaQuery.of(context).size.width;
+    final _suggestionList = query.isEmpty
+        ? []
+        : Provider.of<Doctors>(context, listen: false).searchDoctorType(query);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(children: [
+        const SizedBox(height: 10),
+        Row(children: [
+          Container(
+            height: 30,
+            width: 30,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+                onPressed: () => Provider.of<Doctors>(context, listen: false)
+                    .setScreenState(false),
+                padding: const EdgeInsets.only(left: 9),
+                icon: const Icon(Icons.arrow_back_ios, size: 13)),
+          ),
+          const SizedBox(width: 20),
+          const Text(
+            'Select Time',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          )
+        ]),
+        const SizedBox(height: 40),
+        TextField(
+          autofocus: true,
+          onChanged: (val) => {
+            setState(() {
+              query = val;
+            })
+          },
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: IconButton(
+                onPressed: () => setState(() => query = ''),
+                icon: const Icon(Icons.close, color: Color(0xff677294))),
+            hintText: 'Search...',
+            hintStyle: const TextStyle(
+              color: Color(0xff677294),
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: BorderSide.none),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: _suggestionList.length,
+            itemBuilder: (context, i) => SearchResult(
+              name: _suggestionList[i].name,
+              type: _suggestionList[i].type,
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+}
